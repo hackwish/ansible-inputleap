@@ -1,0 +1,124 @@
+---
+# tasks file for ansible-inputleap
+# Get release
+- name: Get latest Release from Input Leap
+  shell: curl -s https://api.github.com/repos/input-leap/input-leap/releases/latest | grep tag_name | cut -d '"' -f 4 | tr -d v
+  register: result_version
+  tags: inputleap
+
+- set_fact:
+    version: "{{ result_version.stdout }}"
+
+# Install from debs
+- set_fact:
+    ansible_distribution: Ubuntu
+    when: 
+    - ansible_distribution == "Linux Mint"
+
+- set_fact:
+    ansible_distribution_release: "jammy"
+    when: (ansible_facts['ansible_distribution_release'] == "vanessa") or
+          (ansible_facts['ansible_distribution_release'] == "vera") or
+          (ansible_facts['ansible_distribution_release'] == "victoria") or 
+          (ansible_facts['ansible_distribution_release'] == "virginia")
+
+- set_fact:
+    ansible_distribution_release: "noble"
+    when: (ansible_facts['ansible_distribution_release'] == "wilma") or
+          (ansible_facts['ansible_distribution_release'] == "xia")
+
+- set_fact:
+    os_version: 24-04
+    when: 
+      - ansible_distribution_release: "noble"
+
+- set_fact:
+    os_version: 22-04
+    when: 
+      - ansible_distribution_release: "jammy"
+
+- name: Install Input Leap Ubuntu deps
+  package:
+    name: qt6-qpa-plugins
+    state: present
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_distribution == "Ubuntu"
+  tags: inputleap
+  
+- name: Install a .deb package for Input Leap
+  apt:
+    deb: https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_ubuntu_{{ os_version }}_amd64.deb
+  when:
+    - ansible_os_family == "Debian"
+    - ansible_distribution == "Ubuntu"
+    - ansible_architecture == "x86_64"
+  ignore_errors: true
+  tags: inputleap
+
+# Install from dmg
+- local_action: stat path=/Applications/{{ appName }}.app
+  register: app_exists
+  when:
+  - ansible_os_family == "Darwin"
+  ignore_errors: true
+  tags: inputleap
+
+- command: mkdir -p ./tmp/
+  when: 
+    - ansible_os_family == "Darwin"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: inputleap
+
+- name: Get .dmg package for Input Leap Apple Silicon
+  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_AppleSilicon.dmg
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: inputleap
+
+- name: Get .dmg package for Input Leap x86_64
+  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_x86_64.dmg
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "x86_64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: inputleap
+
+- name: Mount package for Input Leap
+  command: hdiutil attach ./tmp/{{ appName }}.dmg -nobrowse -mountpoint ./tmp/{{ appName }}
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: inputleap
+
+- name: Install package for Input Leap
+  shell: cp -aR ./tmp/{{ appName }}/*.app /Applications/{{ appName }}.app
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False
+  ignore_errors: true
+  tags: inputleap
+
+- command: hdiutil detach ./tmp/{{ appName }}/
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False"
+  ignore_errors: true
+  tags: inputleap
+
+- command: rm -R ./tmp/
+  when: 
+    - ansible_os_family == "Darwin"
+    - ansible_machine == "arm64"
+    - app_exists.stat.exists == False"
+  ignore_errors: true
+  tags: inputleap
