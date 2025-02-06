@@ -93,7 +93,6 @@
   command: hdiutil attach ./tmp/{{ appName }}.dmg -nobrowse -mountpoint ./tmp/{{ appName }}
   when: 
     - ansible_os_family == "Darwin"
-    - ansible_machine == "arm64"
     - app_exists.stat.exists == False
   ignore_errors: true
   tags: inputleap
@@ -102,7 +101,6 @@
   shell: cp -aR ./tmp/{{ appName }}/*.app /Applications/{{ appName }}.app
   when: 
     - ansible_os_family == "Darwin"
-    - ansible_machine == "arm64"
     - app_exists.stat.exists == False
   ignore_errors: true
   tags: inputleap
@@ -110,7 +108,6 @@
 - command: hdiutil detach ./tmp/{{ appName }}/
   when: 
     - ansible_os_family == "Darwin"
-    - ansible_machine == "arm64"
     - app_exists.stat.exists == False"
   ignore_errors: true
   tags: inputleap
@@ -118,7 +115,6 @@
 - command: rm -R ./tmp/
   when: 
     - ansible_os_family == "Darwin"
-    - ansible_machine == "arm64"
     - app_exists.stat.exists == False"
   ignore_errors: true
   tags: inputleap
