@@ -72,7 +72,7 @@
   tags: inputleap
 
 - name: Get .dmg package for Input Leap Apple Silicon
-  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_AppleSilicon.dmg
+  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_AppleSilicon.dmg dest=./tmp/{{ appName }}.dmg
   when: 
     - ansible_os_family == "Darwin"
     - ansible_machine == "arm64"
@@ -81,7 +81,7 @@
   tags: inputleap
 
 - name: Get .dmg package for Input Leap x86_64
-  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_x86_64.dmg
+  get_url: url=https://github.com/input-leap/input-leap/releases/download/v{{ version }}/InputLeap_{{ version }}_macos_x86_64.dmg dest=./tmp/{{ appName }}.dmg
   when: 
     - ansible_os_family == "Darwin"
     - ansible_machine == "x86_64"
