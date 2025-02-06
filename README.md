@@ -1,7 +1,7 @@
 Input Leap Role
 =========
 
-This role install LmStudio for Linux Ubuntu based and Mac systems
+This role install Input Leap for Linux Ubuntu based and Mac systems
 
 Requirements
 ------------
