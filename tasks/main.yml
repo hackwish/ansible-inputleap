@@ -108,13 +108,13 @@
 - command: hdiutil detach ./tmp/{{ appName }}/
   when: 
     - ansible_os_family == "Darwin"
-    - app_exists.stat.exists == False"
+    - app_exists.stat.exists == False
   ignore_errors: true
   tags: inputleap
 
 - command: rm -R ./tmp/
   when: 
     - ansible_os_family == "Darwin"
-    - app_exists.stat.exists == False"
+    - app_exists.stat.exists == False
   ignore_errors: true
   tags: inputleap
