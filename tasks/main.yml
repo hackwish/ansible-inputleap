@@ -7,7 +7,7 @@
   tags: inputleap
 
 - set_fact:
-    version: "{{ result_version.stdout }}"
+    version: "3.0.2" # "{{ result_version.stdout }}"
 
 # Install from debs
 - set_fact:
